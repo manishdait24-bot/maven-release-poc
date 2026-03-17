@@ -45,10 +45,17 @@
     </dependency>
   </dependencies>
 
+  <scm>
+    <connection>scm:git:git://github.com/manishdait24-bot/maven-release-poc.git</connection>
+    <developerConnection>scm:git:ssh://github.com:manishdait24-bot/maven-release-poc.git</developerConnection>
+    <url>https://github.com/manishdait24-bot/maven-release-poc</url>
+    <tag>HEAD</tag>
+  </scm>
+
 <build>
   <plugins>
   </plugins>
-  </build>
+</build>
 
 
   <profiles>
