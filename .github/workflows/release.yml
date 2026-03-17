@@ -35,9 +35,6 @@ jobs:
       - name: Set Maven version
         run: mvn -B versions:set versions:commit -DnewVersion=${{ env.VERSION }}
 
-      - name: Build
-        run: mvn -B clean verify
-
       - name: Publish to Maven Central
         run: mvn -B deploy -Dgpg.passphrase=${{ secrets.GPG_PARSE }}
         env:
