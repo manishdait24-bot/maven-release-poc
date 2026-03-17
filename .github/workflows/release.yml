@@ -1,9 +1,15 @@
 name: Release Artifacts
 
 on:
-  release:
-    types: [created]
-
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. 1.0.0)"
+        required: true
+      publish:
+        description: "Publish to Maven Central?"
+        required: true
+        default: "false"
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -11,21 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Java & Maven Central
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          server-id: central
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
 
       - name: Import GPG key
         run: |
-          echo "${{ secrets.GPG_PR_KEY }}" | gpg --batch --import
+          echo "${{ secrets.GPG_PR_KEY }}" | base64 --decode | gpg --batch --import
           mkdir -p ~/.gnupg
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          echo "use-agent" >> ~/.gnupg/gpg.conf
 
       - name: Extract version
         run: |
@@ -35,16 +37,15 @@ jobs:
       - name: Set Maven version
         run: mvn -B versions:set versions:commit -DnewVersion=${{ env.VERSION }}
 
-      - name: Check credentials
-        run: |
-          echo "Username is set: ${MAVEN_USERNAME:+yes}"
-          echo "Password is set: ${MAVEN_PASSWORD:+yes}"
-        env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
+      # Step 1: Build + stage artifacts locally
+      - name: Build & Stage
+        run: mvn -B clean deploy
 
-      - name: Publish to Maven Central
-        run: mvn -B deploy -Dgpg.passphrase=${{ secrets.GPG_PARSE }}
+      # Step 2: Publish using JReleaser
+      - name: Publish with JReleaser
+        run: mvn -B jreleaser:full-release
         env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_PR_KEY }}
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PARSE }}
+          JRELEASER_MAVENCENTRAL_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
+          JRELEASER_MAVENCENTRAL_PASSWORD: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
