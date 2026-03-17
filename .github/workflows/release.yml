@@ -35,6 +35,14 @@ jobs:
       - name: Set Maven version
         run: mvn -B versions:set versions:commit -DnewVersion=${{ env.VERSION }}
 
+      - name: Check credentials
+        run: |
+          echo "Username is set: ${MAVEN_USERNAME:+yes}"
+          echo "Password is set: ${MAVEN_PASSWORD:+yes}"
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_TOKEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_TOKEN_PASSWORD }}
+
       - name: Publish to Maven Central
         run: mvn -B deploy -Dgpg.passphrase=${{ secrets.GPG_PARSE }}
         env:
