@@ -8,7 +8,16 @@
   <packaging>jar</packaging>
 
   <name>maven-release-poc</name>
+  <description>Dummy maven package to test maven release</description>
   <url>https://github.com/manishdait24-bot/maven-release-poc</url>
+
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://github.com/manishdait24-bot/maven-release-poc/blob/main/LICENSE.md</url>
+    </license>
+  </licenses>
+
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,4 +31,20 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.9.0</version>
+        <extensions>true</extensions>
+        <configuration>
+          <publishingServerId>central</publishingServerId>
+          <tokenAuth>true</tokenAuth>
+          <autoPublish>true</autoPublish>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
