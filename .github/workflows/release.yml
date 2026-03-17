@@ -42,7 +42,7 @@ jobs:
       # Publish using JReleaser
       - name: Publish with JReleaser
         if: ${{ github.event.inputs.publish == 'true' }}
-        run: mvn -B jreleaser:full-release
+        run: mvn -B -Ppublication jreleaser:full-release
         env:
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_PR_KEY }}
           JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PARSE }}
